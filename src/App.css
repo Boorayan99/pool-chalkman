@@ -1,109 +1,203 @@
 /* App.css */
 
-.app-container {
-  font-family: 'Segoe UI', sans-serif;
-  padding: 20px;
-  background-color: #f8f8f8;
-  color: #222;
-  max-width: 960px;
-  margin: auto;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #232526, #414345);
+  color: #f4f4f4;
 }
 
-h1 {
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 12px 20px;
   text-align: center;
-  margin-bottom: 20px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #ffd54f;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.container {
+  max-width: 900px;
+  margin: 80px auto 40px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h1, h2, h3, h4, h5 {
+  color: #ffffff;
+  margin-bottom: 10px;
 }
 
 input[type="text"] {
-  padding: 8px;
-  margin-right: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  border: none;
   width: 200px;
 }
 
 button {
-  padding: 8px 12px;
-  margin: 6px;
+  padding: 10px 14px;
+  margin: 5px;
   border: none;
-  background-color: #007bff;
+  border-radius: 8px;
+  background-color: #4CAF50;
   color: white;
-  border-radius: 5px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background 0.3s;
+  transition: background-color 0.2s ease-in-out, transform 0.1s;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+button.selected {
+  background-color: #ff9800;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ball-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 10px 0;
-}
-
-.ball {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background-color: #eee;
-  border: 2px solid #ccc;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s, background-color 0.3s;
-}
-
-.ball:hover {
-  transform: scale(1.1);
-  background-color: #d2f0ff;
-}
-
-.ball.selected {
-  background-color: #ffe066;
-  border-color: #f0ad4e;
-}
-
-.ball:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.message-error {
-  color: red;
-  font-weight: bold;
-}
-
-.message-log {
-  margin: 10px 0;
-  font-style: italic;
-  color: #444;
-}
-
-.now-playing {
-  color: #007bff;
+  gap: 8px;
   margin-bottom: 10px;
 }
 
-.history-log {
-  list-style: none;
-  padding: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 10px;
-  margin-top: 10px;
+.ball {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #555;
+  color: #fff;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.history-log li {
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
+.ball.selected {
+  border-color: #ff9800;
+  background: #ff9800;
 }
 
-.history-log li:last-child {
-  border-bottom: none;
+.ball:disabled {
+  background: #777;
+  cursor: not-allowed;
+}
+
+.ball[data-value="17"] { background: #b71c1c; }
+.ball[data-value="16"] { background: #e65100; }
+.ball[data-value="6"]  { background: #1565c0; }
+
+.message {
+  font-weight: bold;
+  text-align: center;
+  margin: 10px 0;
+  color: #ffd54f;
+}
+
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.player-card {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px 16px;
+  border-radius: 10px;
+  width: 180px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.player-card:hover {
+  transform: translateY(-3px);
+  background-color: rgba(255,255,255,0.1);
+}
+
+.player-card h4 {
+  margin: 0 0 6px;
+  font-weight: 600;
+  color: #ffd54f;
+}
+
+.player-card .score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.player-card .status {
+  font-size: 0.85rem;
+  color: #e57373;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .ball-grid {
+    justify-content: center;
+  }
+  input[type="text"] {
+    width: 100%;
+  }
+  .container {
+    margin-top: 100px;
+    padding: 16px;
+  }
+  .topbar {
+    font-size: 1.2rem;
+  }
+  .player-card {
+    width: 100%;
+  }
 }

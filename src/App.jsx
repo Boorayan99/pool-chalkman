@@ -25,6 +25,8 @@ export default function App() {
   const [ballsPotted, setBallsPotted] = useState([]);
   const [history, setHistory] = useState([]);
 
+
+
   const getLowestRemainingBall = () => {
     const remainingBalls = balls.filter((b) => !b.potted);
     const minValue = Math.min(...remainingBalls.map((b) => b.value));
@@ -55,6 +57,21 @@ export default function App() {
     } else {
       setBallsPotted([...ballsPotted, number]);
     }
+  };
+
+  const handleMissedShot = () => {
+    const updatedPlayers = [...players];
+    const player = updatedPlayers[currentPlayer];
+    const missValue = getBallValue(declaredBall);
+
+    player.score -= missValue;
+
+    setPlayers(updatedPlayers);
+    setMessage(`❌ Missed Shot! -${missValue} points`);
+
+    checkElimination(updatedPlayers, balls);
+    checkWinner(balls);
+    nextTurn(balls);
   };
 
   const handleConfirmTurn = () => {
@@ -155,14 +172,14 @@ export default function App() {
   if (setupPhase) {
     return (
       <div className="app-container">
-        <h1>🎱 Chalkman's Register</h1>
+        <h1>🎱 Registration</h1>
         <input
           type="text"
-          placeholder="Enter player name"
+          placeholder="Player Name"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
         />
-        <button onClick={addPlayer}>Add Player</button>
+        <button onClick={addPlayer}>Add Players</button>
         <button onClick={startGame}>Start Game</button>
         <ul>
           {players.map((p, i) => (
@@ -207,6 +224,7 @@ export default function App() {
       </div>
 
       <button onClick={handleConfirmTurn}>✅ Confirm Turn</button>
+      <button onClick={handleMissedShot}>❌ Missed Shot</button>
 
       <h3>📊 Scoreboard</h3>
       <ul>
