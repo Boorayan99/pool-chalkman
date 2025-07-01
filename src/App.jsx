@@ -25,8 +25,6 @@ export default function App() {
   const [ballsPotted, setBallsPotted] = useState([]);
   const [history, setHistory] = useState([]);
 
-
-
   const getLowestRemainingBall = () => {
     const remainingBalls = balls.filter((b) => !b.potted);
     const minValue = Math.min(...remainingBalls.map((b) => b.value));
@@ -63,12 +61,9 @@ export default function App() {
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayer];
     const missValue = getBallValue(declaredBall);
-
     player.score -= missValue;
-
     setPlayers(updatedPlayers);
     setMessage(`❌ Missed Shot! -${missValue} points`);
-
     checkElimination(updatedPlayers, balls);
     checkWinner(balls);
     nextTurn(balls);
@@ -79,21 +74,22 @@ export default function App() {
       setMessage('Select the ball that was hit first.');
       return;
     }
-
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayer];
     const ballsCopy = [...balls];
-    //let foul = false;
     let msg = '';
-
     const currentDeclaredBall = getLowestRemainingBall();
     setDeclaredBall(currentDeclaredBall);
 
-    if (ballHit !== currentDeclaredBall) {
+    const isFirstShot = history.length === 0 && currentDeclaredBall === 3;
+    const pottedCueBall = ballHit === 0;
+
+    if (isFirstShot && pottedCueBall) {
+      msg = '⚪ Cue ball potted on break. No penalty.';
+    } else if (ballHit !== currentDeclaredBall) {
       const foulValue = getBallValue(ballHit);
       player.score -= foulValue;
       msg = `🚨 Foul! Hit ${ballHit} instead of ${currentDeclaredBall}. -${foulValue}`;
-      //foul = true;
     } else if (ballsPotted.length === 0) {
       msg = `⚠️ No balls potted. No score.`;
     } else {
@@ -106,7 +102,7 @@ export default function App() {
       if (ballsPotted.includes(b.number)) {
         ballsCopy[i] = {
           ...b,
-          potted: true, // Always marks as potted regardless of foul
+          potted: true,
         };
       }
     });
@@ -172,15 +168,17 @@ export default function App() {
   if (setupPhase) {
     return (
       <div className="app-container">
-        <h1>🎱 Registration</h1>
+        <h1>🎱Registration</h1>
         <input
           type="text"
-          placeholder="Player Name"
+          placeholder="Add Player"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
         />
-        <button onClick={addPlayer}>Add Players</button>
-        <button onClick={startGame}>Start Game</button>
+        <div className="start-buttons">
+          <button onClick={addPlayer}>Add Players</button>
+          <button onClick={startGame}>Start Game</button>
+        </div>
         <ul>
           {players.map((p, i) => (
             <li key={i}>{p.name}</li>
@@ -193,12 +191,12 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <h1>🎱 Chalkman</h1>
+      <h2>🎱 Chalkman</h2>
       <h2 className="now-playing">Now Playing: {players[currentPlayer].name}</h2>
       <p>Declared Ball: <strong>{declaredBall}</strong></p>
       <p className="message-log">{message}</p>
 
-      <div>
+      <div className="ball-section">
         <h3>👊 Ball Hit</h3>
         <div className="ball-grid">
           {balls.map((ball) => (
@@ -207,29 +205,42 @@ export default function App() {
               className={`ball ${ballHit === ball.number ? 'selected' : ''}`}
               onClick={() => setBallHit(ball.number)}
               disabled={ball.potted}
+              data-number={ball.number}
             >
               {ball.number}
             </button>
           ))}
         </div>
+        <div className="ball-actions stacked">
+          <button onClick={handleMissedShot}>❌ Missed Shot</button>
+          
+        </div>
       </div>
 
-      <div>
+      <div className="potted-section">
         <h3>🎯 Balls Potted</h3>
-        <BallBoard
-          balls={balls}
-          onPot={toggleBallPotted}
-          selectedBalls={ballsPotted}
-        />
+        <div className="ball-board-grid">
+          {balls.map((ball) => (
+            <button
+              key={ball.number}
+              className={`potted-ball ${ballsPotted.includes(ball.number) ? 'selected' : ''}`}
+              data-number={ball.number}
+              onClick={() => toggleBallPotted(ball.number)}
+              disabled={ball.potted}
+            >
+              {ball.number}
+            </button>
+          ))}
+        </div>
+        <div className="ball-actions">
+          <button onClick={handleConfirmTurn}>✅ Confirm Turn</button>
+        </div>
       </div>
-
-      <button onClick={handleConfirmTurn}>✅ Confirm Turn</button>
-      <button onClick={handleMissedShot}>❌ Missed Shot</button>
 
       <h3>📊 Scoreboard</h3>
-      <ul>
+      <ul className="scoreboard">
         {players.map((p, i) => (
-          <li key={i}>
+          <li key={i} className={p.eliminated ? 'eliminated' : ''}>
             {p.name}: {p.score} {p.eliminated && '❌ Eliminated'}
           </li>
         ))}

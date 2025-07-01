@@ -1,90 +1,178 @@
 /* App.css */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
 body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #1b1b1b;
+  color: #f4f4f4;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #232526, #414345);
-  color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-.topbar {
-  position: sticky;
-  top: 0;
-  background: rgba(0, 0, 0, 0.85);
-  padding: 12px 20px;
-  text-align: center;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #ffd54f;
-  z-index: 10;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-}
-
-.container {
+.app-container {
   max-width: 900px;
-  margin: 80px auto 40px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.07);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.section {
-  margin-bottom: 24px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #292929;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.6s ease-in-out;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-h1, h2, h3, h4, h5 {
-  color: #ffffff;
-  margin-bottom: 10px;
+h1, h2, h3 {
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 input[type="text"] {
-  padding: 10px;
-  margin: 5px;
+  padding: 0.75rem;
+  font-size: 1rem;
   border-radius: 8px;
-  border: none;
-  width: 200px;
+  border: 2px solid #4caf50;
+  width: 300px;
+  text-align: center;
+  margin-bottom: 1rem;
+  background-color: #1e1e1e;
+  color: #f4f4f4;
+  box-shadow: 0 0 5px #4caf50;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #81c784;
+  box-shadow: 0 0 10px #81c784;
+  outline: none;
+}
+
+.start-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 300px;
+  margin-bottom: 1rem;
+}
+
+.ball-section,
+.potted-section {
+  margin-bottom: 1rem;
+}
+
+.ball-actions,
+.potted-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 button {
-  padding: 10px 14px;
-  margin: 5px;
+  padding: 0.5rem 1rem;
+  margin: 0.3rem;
   border: none;
   border-radius: 8px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out, transform 0.1s;
+  transition: background-color 0.3s ease;
+  min-width: 150px;
+  text-align: center;
+  flex: 1;
 }
 
 button:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
+  background-color: #388e3c;
 }
 
-button.selected {
-  background-color: #ff9800;
+button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.ball-grid,
+.ball-board-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.ball,
+.potted-ball {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-weight: bold;
+  color: white;
+  font-size: 1rem;
+  border: 2px solid #fff;
+  background-color: #444;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ball.selected,
+.potted-ball.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px #00e676;
+  background-color: #00c853;
+}
+
+/* 🎱 Pool Ball Colors */
+.ball[data-number="1"], .potted-ball[data-number="1"] { background-color: #fdd835; }
+.ball[data-number="2"], .potted-ball[data-number="2"] { background-color: #1976d2; }
+.ball[data-number="3"], .potted-ball[data-number="3"] { background-color: #d32f2f; }
+.ball[data-number="4"], .potted-ball[data-number="4"] { background-color: #7b1fa2; }
+.ball[data-number="5"], .potted-ball[data-number="5"] { background-color: #ef6c00; }
+.ball[data-number="6"], .potted-ball[data-number="6"] { background-color: #388e3c; }
+.ball[data-number="7"], .potted-ball[data-number="7"] { background-color: #5d4037; }
+.ball[data-number="8"], .potted-ball[data-number="8"] { background-color: #212121; }
+.ball[data-number="9"], .potted-ball[data-number="9"] { background-color: #ffee58; color: black; }
+.ball[data-number="10"], .potted-ball[data-number="10"] { background-color: #64b5f6; color: black; }
+.ball[data-number="11"], .potted-ball[data-number="11"] { background-color: #e57373; }
+.ball[data-number="12"], .potted-ball[data-number="12"] { background-color: #ba68c8; }
+.ball[data-number="13"], .potted-ball[data-number="13"] { background-color: #ffb74d; color: black; }
+.ball[data-number="14"], .potted-ball[data-number="14"] { background-color: #81c784; color: black; }
+.ball[data-number="15"], .potted-ball[data-number="15"] { background-color: #a1887f; }
+.ball[data-number="0"], .potted-ball[data-number="0"] { background-color: white; color: black; border: 2px dashed #ccc; }
+
+.now-playing {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #ffd54f;
+}
+
+.message-log,
+.message-error,
+.cue-ball-warning {
+  text-align: center;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.message-log {
+  background-color: #2e7d32;
+}
+
+.message-error {
+  background-color: #c62828;
+  display: none;
+}
+
+.cue-ball-warning {
+  background-color: #fbc02d;
+  color: #000;
 }
 
 ul {
@@ -92,112 +180,69 @@ ul {
   padding: 0;
 }
 
-li {
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.ball-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.ball {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-weight: bold;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #555;
-  color: #fff;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.ball.selected {
-  border-color: #ff9800;
-  background: #ff9800;
-}
-
-.ball:disabled {
-  background: #777;
-  cursor: not-allowed;
-}
-
-.ball[data-value="17"] { background: #b71c1c; }
-.ball[data-value="16"] { background: #e65100; }
-.ball[data-value="6"]  { background: #1565c0; }
-
-.message {
-  font-weight: bold;
-  text-align: center;
-  margin: 10px 0;
-  color: #ffd54f;
-}
-
-.scoreboard {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.player-card {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 12px 16px;
+.scoreboard li {
+  background-color: #37474f;
+  margin: 0.3rem 0;
+  padding: 0.7rem;
   border-radius: 10px;
-  width: 180px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.scoreboard li:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 8px #4caf50;
+}
+
+.scoreboard li.eliminated {
+  background-color: #9e9e9e;
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.history-log {
+  max-height: 200px;
+  overflow-y: auto;
+  border-top: 1px solid #555;
+  padding-top: 0.5rem;
+}
+
+.download-log {
+  display: block;
+  margin: 1rem auto;
+  background-color: #2196f3;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  transition: transform 0.3s ease;
-  animation: fadeIn 0.4s ease-in-out;
 }
 
-.player-card:hover {
-  transform: translateY(-3px);
-  background-color: rgba(255,255,255,0.1);
-}
-
-.player-card h4 {
-  margin: 0 0 6px;
-  font-weight: 600;
-  color: #ffd54f;
-}
-
-.player-card .score {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #4CAF50;
-}
-
-.player-card .status {
-  font-size: 0.85rem;
-  color: #e57373;
-  margin-top: 4px;
+.download-log:hover {
+  background-color: #1565c0;
 }
 
 @media (max-width: 600px) {
-  .ball-grid {
-    justify-content: center;
+  .ball,
+  .potted-ball {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
   }
-  input[type="text"] {
+  .app-container {
+    padding: 1rem;
+  }
+  input[type="text"],
+  .start-buttons {
     width: 100%;
   }
-  .container {
-    margin-top: 100px;
-    padding: 16px;
+  button {
+    min-width: unset;
+    flex: 1;
   }
-  .topbar {
-    font-size: 1.2rem;
-  }
-  .player-card {
-    width: 100%;
-  }
+}
+
+
+.ball-actions.stacked {
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
 }
