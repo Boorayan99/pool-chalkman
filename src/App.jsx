@@ -24,6 +24,7 @@ export default function App() {
   const [ballHit, setBallHit] = useState(null);
   const [ballsPotted, setBallsPotted] = useState([]);
   const [history, setHistory] = useState([]);
+  const [isFirstBallYetPotted, setIsFirstBallYetPotted] = useState(false);
 
   const getLowestRemainingBall = () => {
     const remainingBalls = balls.filter((b) => !b.potted);
@@ -49,7 +50,7 @@ export default function App() {
   };
 
   const toggleBallPotted = (number) => {
-    if (balls.find((b) => b.number === number)?.potted) return;
+    if (number !== 0 && balls.find((b) => b.number === number)?.potted) return;
     if (ballsPotted.includes(number)) {
       setBallsPotted(ballsPotted.filter((n) => n !== number));
     } else {
@@ -70,46 +71,57 @@ export default function App() {
   };
 
   const handleConfirmTurn = () => {
-    if (!ballHit) {
+    if (ballHit === null) {
       setMessage('Select the ball that was hit first.');
       return;
     }
+
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayer];
     const ballsCopy = [...balls];
-    let msg = '';
+    //let msg = '';
     const currentDeclaredBall = getLowestRemainingBall();
     setDeclaredBall(currentDeclaredBall);
 
-    const isFirstShot = history.length === 0 && currentDeclaredBall === 3;
-    const pottedCueBall = ballHit === 0;
+    const cueBallPotted = ballsPotted.includes(0);
+    const declaredBallPotted = ballsPotted.includes(currentDeclaredBall);
 
-    if (isFirstShot && pottedCueBall) {
-      msg = '⚪ Cue ball potted on break. No penalty.';
-    } else if (ballHit !== currentDeclaredBall) {
-      const foulValue = getBallValue(ballHit);
-      player.score -= foulValue;
-      msg = `🚨 Foul! Hit ${ballHit} instead of ${currentDeclaredBall}. -${foulValue}`;
-    } else if (ballsPotted.length === 0) {
-      msg = `⚠️ No balls potted. No score.`;
-    } else {
-      const earned = ballsPotted.reduce((sum, num) => sum + getBallValue(num), 0);
-      player.score += earned;
-      msg = `✅ Nice shot! +${earned} points`;
+    let score = 0;
+
+    for (let num of ballsPotted) {
+      if (num !== 0 && num !== currentDeclaredBall) {
+        score += getBallValue(num);
+      }
     }
+
+    if (!isFirstBallYetPotted) {
+      if (!cueBallPotted && declaredBallPotted) {
+        score += getBallValue(currentDeclaredBall);
+      }
+      if (ballsPotted.some(n => n !== 0)) {
+        setIsFirstBallYetPotted(true);
+      }
+    } else {
+      if (declaredBallPotted) {
+        score += getBallValue(currentDeclaredBall);
+      }
+      if (cueBallPotted && declaredBallPotted) {
+        score -= getBallValue(currentDeclaredBall);
+      }
+      if (score < 0) score = 0;
+    }
+
+    player.score += score;
 
     ballsCopy.forEach((b, i) => {
       if (ballsPotted.includes(b.number)) {
-        ballsCopy[i] = {
-          ...b,
-          potted: true,
-        };
+        ballsCopy[i] = { ...b, potted: true };
       }
     });
 
     setBalls(ballsCopy);
     setPlayers(updatedPlayers);
-    setMessage(msg);
+    setMessage(`✅ Turn processed. Score: ${score}`);
     setBallHit(null);
     setBallsPotted([]);
 
@@ -118,7 +130,7 @@ export default function App() {
         player: players[currentPlayer].name,
         hit: ballHit,
         potted: [...ballsPotted],
-        message: msg,
+        message: `✅ Turn processed. Score: ${score}`,
         score: players[currentPlayer].score,
       },
       ...prev,
@@ -126,7 +138,7 @@ export default function App() {
 
     checkElimination(updatedPlayers, ballsCopy);
     checkWinner(ballsCopy);
-    nextTurn(updatedPlayers);
+    nextTurn();
   };
 
   const checkElimination = (updatedPlayers, updatedBalls) => {
@@ -191,10 +203,9 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <h2>🎱 Chalkman</h2>
+      <h2>🎱 Dashboard</h2>
       <h2 className="now-playing">Now Playing: {players[currentPlayer].name}</h2>
-      <p>Declared Ball: <strong>{declaredBall}</strong></p>
-      <p className="message-log">{message}</p>
+      
 
       <div className="ball-section">
         <h3>👊 Ball Hit</h3>
@@ -213,7 +224,6 @@ export default function App() {
         </div>
         <div className="ball-actions stacked">
           <button onClick={handleMissedShot}>❌ Missed Shot</button>
-          
         </div>
       </div>
 
@@ -223,7 +233,7 @@ export default function App() {
           {balls.map((ball) => (
             <button
               key={ball.number}
-              className={`potted-ball ${ballsPotted.includes(ball.number) ? 'selected' : ''}`}
+              className={`potted-ball ${ballsPotted.includes(ball.number) ? 'selected' : ''} ${ball.potted ? 'inactive' : ''}`}
               data-number={ball.number}
               onClick={() => toggleBallPotted(ball.number)}
               disabled={ball.potted}
@@ -232,6 +242,16 @@ export default function App() {
             </button>
           ))}
         </div>
+
+        <div className="cue-button-wrapper">
+          <button
+            className={`cue-ball ${ballsPotted.includes(0) ? 'selected' : ''}`}
+            onClick={() => toggleBallPotted(0)}
+          >
+            ⚪
+          </button>
+        </div>
+
         <div className="ball-actions">
           <button onClick={handleConfirmTurn}>✅ Confirm Turn</button>
         </div>
