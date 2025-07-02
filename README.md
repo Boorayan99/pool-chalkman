@@ -16,17 +16,17 @@ If you are developing a production application, we recommend using TypeScript wi
 <p>Declared Ball: <strong>{declaredBall}</strong></p>
 <p className="message-log">{message}</p>
 
-const handleMissedShot = () => {
-    const updatedPlayers = [...players];
-    const player = updatedPlayers[currentPlayer];
-    const lowest = getLowestRemainingBall();
-    const missValue = getBallValue(lowest);
-    player.score -= missValue;
+const checkElimination = (updatedPlayers, updatedBalls) => {
+    const remaining = updatedBalls.filter((b) => !b.potted);
+    const maxRemaining = remaining.reduce((sum, b) => sum + b.value, 0);
+    const maxScore = Math.max(...updatedPlayers.map((p) => p.score));
 
-    
-    setPlayers(updatedPlayers);
-    setMessage(`❌ Missed Shot! -${missValue} points`);
-    checkElimination(updatedPlayers, balls);
-    checkWinner(balls);
-    nextTurn();
+    const reviewed = updatedPlayers.map((p) => {
+      const canCatch = p.score + maxRemaining >= maxScore;
+      return { ...p, eliminated: !canCatch };
+    });
+
+    setPlayers(reviewed);
   };
+
+  

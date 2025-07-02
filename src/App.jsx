@@ -164,17 +164,25 @@ export default function App() {
   };
 
   const checkElimination = (updatedPlayers, updatedBalls) => {
-    const remaining = updatedBalls.filter((b) => !b.potted);
-    const maxRemaining = remaining.reduce((sum, b) => sum + b.value, 0);
-    const maxScore = Math.max(...updatedPlayers.map((p) => p.score));
+  const remaining = updatedBalls.filter((b) => !b.potted);
+  const maxRemaining = remaining.reduce((sum, b) => sum + b.value, 0);
+  const maxScore = Math.max(...updatedPlayers.map((p) => p.score));
 
-    const reviewed = updatedPlayers.map((p) => {
-      const canCatch = p.score + maxRemaining >= maxScore;
-      return { ...p, eliminated: !canCatch };
-    });
+  const reviewed = updatedPlayers.map((p) => {
+    const canCatch = p.score + maxRemaining >= maxScore;
+    return { ...p, eliminated: !canCatch };
+  });
 
-    setPlayers(reviewed);
-  };
+  setPlayers(reviewed);
+
+  // 🏆 Immediate win check
+  const alive = reviewed.filter((p) => !p.eliminated);
+  if (alive.length === 1) {
+    const winner = alive[0];
+    setMessage(`🏆 Game Over! Winner: ${winner.name} (${winner.score} pts)`);
+  }
+};
+
 
   const checkWinner = (updatedBalls) => {
     const remaining = updatedBalls.filter((b) => !b.potted);
@@ -202,16 +210,16 @@ export default function App() {
   if (setupPhase) {
     return (
       <div className="app-container">
-        <h1>🎱Registration</h1>
+        <h2>🎱 Chalkboard</h2>
         <input
           type="text"
-          placeholder="Add Player"
+          placeholder="Add Players"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
         />
         <div className="start-buttons">
-          <button onClick={addPlayer}>Add Players</button>
-          <button onClick={startGame}>Start Game</button>
+          <button onClick={addPlayer}>Register</button>
+          <button onClick={startGame}>Start</button>
         </div>
         <ul>
           {players.map((p, i) => (
