@@ -15,3 +15,18 @@ If you are developing a production application, we recommend using TypeScript wi
 
 <p>Declared Ball: <strong>{declaredBall}</strong></p>
 <p className="message-log">{message}</p>
+
+const handleMissedShot = () => {
+    const updatedPlayers = [...players];
+    const player = updatedPlayers[currentPlayer];
+    const lowest = getLowestRemainingBall();
+    const missValue = getBallValue(lowest);
+    player.score -= missValue;
+
+    
+    setPlayers(updatedPlayers);
+    setMessage(`❌ Missed Shot! -${missValue} points`);
+    checkElimination(updatedPlayers, balls);
+    checkWinner(balls);
+    nextTurn();
+  };

@@ -1,4 +1,4 @@
-// App.jsx
+// App.jsx — Updated Logic with Foul Deductions, Missed Shot Fix, and Accurate Logging
 import React, { useState } from 'react';
 import BallBoard from './components/BallBoard';
 import './App.css';
@@ -59,16 +59,31 @@ export default function App() {
   };
 
   const handleMissedShot = () => {
-    const updatedPlayers = [...players];
-    const player = updatedPlayers[currentPlayer];
-    const missValue = getBallValue(declaredBall);
-    player.score -= missValue;
-    setPlayers(updatedPlayers);
-    setMessage(`❌ Missed Shot! -${missValue} points`);
-    checkElimination(updatedPlayers, balls);
-    checkWinner(balls);
-    nextTurn(balls);
-  };
+  const updatedPlayers = [...players];
+  const player = updatedPlayers[currentPlayer];
+  const missValue = getBallValue(declaredBall);
+  player.score -= missValue;
+
+  const logMessage = `❌ Missed Shot! -${missValue} points`;
+
+  setPlayers(updatedPlayers);
+  setMessage(logMessage);
+  setHistory((prev) => [
+    {
+      player: players[currentPlayer].name,
+      hit: null,
+      potted: [],
+      message: logMessage,
+      score: player.score,
+    },
+    ...prev,
+  ]);
+
+  checkElimination(updatedPlayers, balls);
+  checkWinner(balls);
+  nextTurn(balls);
+};
+
 
   const handleConfirmTurn = () => {
     if (ballHit === null) {
@@ -79,36 +94,43 @@ export default function App() {
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayer];
     const ballsCopy = [...balls];
-    //let msg = '';
-    const currentDeclaredBall = getLowestRemainingBall();
-    setDeclaredBall(currentDeclaredBall);
+    const declared = getLowestRemainingBall();
+    setDeclaredBall(declared);
 
     const cueBallPotted = ballsPotted.includes(0);
-    const declaredBallPotted = ballsPotted.includes(currentDeclaredBall);
+    const declaredBallPotted = ballsPotted.includes(declared);
+    const cueBallOnly = ballsPotted.length === 1 && cueBallPotted;
+    const declaredBallStillOnTable = balls.some(b => b.number === declared && !b.potted);
 
     let score = 0;
+    let msg = '';
 
     for (let num of ballsPotted) {
-      if (num !== 0 && num !== currentDeclaredBall) {
+      if (num !== 0 && num !== declared) {
         score += getBallValue(num);
       }
     }
 
     if (!isFirstBallYetPotted) {
       if (!cueBallPotted && declaredBallPotted) {
-        score += getBallValue(currentDeclaredBall);
+        score += getBallValue(declared);
       }
       if (ballsPotted.some(n => n !== 0)) {
         setIsFirstBallYetPotted(true);
       }
     } else {
       if (declaredBallPotted) {
-        score += getBallValue(currentDeclaredBall);
+        score += getBallValue(declared);
       }
-      if (cueBallPotted && declaredBallPotted) {
-        score -= getBallValue(currentDeclaredBall);
+      if (cueBallOnly && declaredBallStillOnTable) {
+        score -= getBallValue(declared);
+        msg = `🚨 Foul! Only cue ball potted. -${getBallValue(declared)} points.`;
+      } else if (cueBallPotted && declaredBallPotted) {
+        score -= getBallValue(declared);
+        msg = `⚠️ Cue ball and declared potted. Net -${getBallValue(declared)}.`;
+      } else {
+        msg = `✅ Turn processed. Score: ${score}`;
       }
-      if (score < 0) score = 0;
     }
 
     player.score += score;
@@ -121,7 +143,7 @@ export default function App() {
 
     setBalls(ballsCopy);
     setPlayers(updatedPlayers);
-    setMessage(`✅ Turn processed. Score: ${score}`);
+    setMessage(msg);
     setBallHit(null);
     setBallsPotted([]);
 
@@ -130,7 +152,7 @@ export default function App() {
         player: players[currentPlayer].name,
         hit: ballHit,
         potted: [...ballsPotted],
-        message: `✅ Turn processed. Score: ${score}`,
+        message: msg,
         score: players[currentPlayer].score,
       },
       ...prev,
@@ -205,8 +227,7 @@ export default function App() {
     <div className="app-container">
       <h2>🎱 Dashboard</h2>
       <h2 className="now-playing">Now Playing: {players[currentPlayer].name}</h2>
-      
-
+      <p className="message-log">{message}</p>
       <div className="ball-section">
         <h3>👊 Ball Hit</h3>
         <div className="ball-grid">
