@@ -27,6 +27,38 @@ export default function App() {
   const [isFirstBallYetPotted, setIsFirstBallYetPotted] = useState(false);
   const [gameOver, setGameOver] = useState(false) // 🧠 Track Game Over
 
+  const handleResetGame = () => {
+    setSetupPhase(true);
+    setPlayerName('');
+    setPlayers([]);
+    setCurrentPlayer(0);
+    setBalls(BALL_NUMBERS.map((num) => ({ number: num, value: getBallValue(num), potted: false })));
+    setMessage('');
+    setDeclaredBall(null);
+    setBallHit(null);
+    setBallsPotted([]);
+    setHistory([]);
+    setIsFirstBallYetPotted(false);
+    setGameOver(false);
+  };
+
+  const handleDownloadLog = () => {
+    const logText = history.map((log, index) => {
+      return `Turn ${history.length - index}:\nPlayer: ${log.player}\nHit: ${log.hit}\nPotted: ${log.potted.join(', ') || 'none'}\nMessage: ${log.message}\nScore: ${log.score}\n\n`;
+    }).join('');
+
+    const blob = new Blob([logText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pool_game_log.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+
+
+
   const getLowestRemainingBall = () => {
     const remainingBalls = balls.filter((b) => !b.potted);
     const minValue = Math.min(...remainingBalls.map((b) => b.value));
@@ -315,6 +347,13 @@ export default function App() {
           </li>
         ))}
       </ul>
+       {gameOver && (
+        <div className="ball-actions stacked">
+          <button onClick={handleResetGame}>🔁 Restart Game</button>
+          <button onClick={handleDownloadLog}>📥 Download Game Log</button>
+        </div>
+        )}
     </div>
+
   );
 }
