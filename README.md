@@ -15,18 +15,3 @@ If you are developing a production application, we recommend using TypeScript wi
 
 <p>Declared Ball: <strong>{declaredBall}</strong></p>
 <p className="message-log">{message}</p>
-
-const checkElimination = (updatedPlayers, updatedBalls) => {
-    const remaining = updatedBalls.filter((b) => !b.potted);
-    const maxRemaining = remaining.reduce((sum, b) => sum + b.value, 0);
-    const maxScore = Math.max(...updatedPlayers.map((p) => p.score));
-
-    const reviewed = updatedPlayers.map((p) => {
-      const canCatch = p.score + maxRemaining >= maxScore;
-      return { ...p, eliminated: !canCatch };
-    });
-
-    setPlayers(reviewed);
-  };
-
-  

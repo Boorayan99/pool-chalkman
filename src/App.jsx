@@ -25,6 +25,7 @@ export default function App() {
   const [ballsPotted, setBallsPotted] = useState([]);
   const [history, setHistory] = useState([]);
   const [isFirstBallYetPotted, setIsFirstBallYetPotted] = useState(false);
+  const [gameOver, setGameOver] = useState(false) // 🧠 Track Game Over
 
   const getLowestRemainingBall = () => {
     const remainingBalls = balls.filter((b) => !b.potted);
@@ -184,16 +185,20 @@ export default function App() {
 };
 
 
-  const checkWinner = (updatedBalls) => {
+  const checkWinner = (updatedBalls, updatedPlayers = players) => {
     const remaining = updatedBalls.filter((b) => !b.potted);
-    if (remaining.length === 0) {
-      const alive = players.filter((p) => !p.eliminated);
+    const alive = updatedPlayers.filter((p) => !p.eliminated);
+
+    if (remaining.length === 0 || alive.length === 1) {
       const winner = alive.sort((a, b) => b.score - a.score)[0];
       setMessage(`🏆 Game Over! Winner: ${winner.name} (${winner.score} pts)`);
+      setGameOver(true);
     }
   };
 
   const nextTurn = () => {
+    if (gameOver) return; // 🛑 Prevent further turns
+
     const total = players.length;
     let next = (currentPlayer + 1) % total;
     let loops = 0;
@@ -234,7 +239,12 @@ export default function App() {
   return (
     <div className="app-container">
       <h2>🎱 Dashboard</h2>
-      <h2 className="now-playing">Now Playing: {players[currentPlayer].name}</h2>
+      {gameOver ? (
+        <h2 className='now-playing'>🏁 Game Over</h2>
+      ) : (
+        <h2 className="now-playing">Now Playing: {players[currentPlayer].name}</h2>
+      )}
+
       <p className="message-log">{message}</p>
       <div className="ball-section">
         <h3>👊 Ball Hit</h3>
