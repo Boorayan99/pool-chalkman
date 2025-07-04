@@ -1,7 +1,7 @@
 // App.jsx — Updated Logic with Foul Deductions, Missed Shot Fix, and Accurate Logging
-import React, { useState } from 'react';
-import BallBoard from './components/BallBoard';
-import './App.css';
+import React, { useState } from "react";
+import BallBoard from "./components/BallBoard";
+import "./App.css";
 
 const BALL_NUMBERS = Array.from({ length: 15 }, (_, i) => i + 1);
 const getBallValue = (num) => {
@@ -13,27 +13,37 @@ const getBallValue = (num) => {
 
 export default function App() {
   const [setupPhase, setSetupPhase] = useState(true);
-  const [playerName, setPlayerName] = useState('');
+  const [playerName, setPlayerName] = useState("");
   const [players, setPlayers] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [balls, setBalls] = useState(
-    BALL_NUMBERS.map((num) => ({ number: num, value: getBallValue(num), potted: false }))
+    BALL_NUMBERS.map((num) => ({
+      number: num,
+      value: getBallValue(num),
+      potted: false,
+    }))
   );
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [declaredBall, setDeclaredBall] = useState(null);
   const [ballHit, setBallHit] = useState(null);
   const [ballsPotted, setBallsPotted] = useState([]);
   const [history, setHistory] = useState([]);
   const [isFirstBallYetPotted, setIsFirstBallYetPotted] = useState(false);
-  const [gameOver, setGameOver] = useState(false) // 🧠 Track Game Over
+  const [gameOver, setGameOver] = useState(false); // 🧠 Track Game Over
 
   const handleResetGame = () => {
     setSetupPhase(true);
-    setPlayerName('');
+    setPlayerName("");
     setPlayers([]);
     setCurrentPlayer(0);
-    setBalls(BALL_NUMBERS.map((num) => ({ number: num, value: getBallValue(num), potted: false })));
-    setMessage('');
+    setBalls(
+      BALL_NUMBERS.map((num) => ({
+        number: num,
+        value: getBallValue(num),
+        potted: false,
+      }))
+    );
+    setMessage("");
     setDeclaredBall(null);
     setBallHit(null);
     setBallsPotted([]);
@@ -43,21 +53,24 @@ export default function App() {
   };
 
   const handleDownloadLog = () => {
-    const logText = history.map((log, index) => {
-      return `Turn ${history.length - index}:\nPlayer: ${log.player}\nHit: ${log.hit}\nPotted: ${log.potted.join(', ') || 'none'}\nMessage: ${log.message}\nScore: ${log.score}\n\n`;
-    }).join('');
+    const logText = history
+      .map((log, index) => {
+        return `Turn ${history.length - index}:\nPlayer: ${log.player}\nHit: ${
+          log.hit
+        }\nPotted: ${log.potted.join(", ") || "none"}\nMessage: ${
+          log.message
+        }\nScore: ${log.score}\n\n`;
+      })
+      .join("");
 
-    const blob = new Blob([logText], { type: 'text/plain' });
+    const blob = new Blob([logText], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'pool_game_log.txt';
+    a.download = "pool_game_log.txt";
     a.click();
     URL.revokeObjectURL(url);
   };
-
-
-
 
   const getLowestRemainingBall = () => {
     const remainingBalls = balls.filter((b) => !b.potted);
@@ -68,8 +81,11 @@ export default function App() {
 
   const addPlayer = () => {
     if (playerName.trim() && players.length < 10) {
-      setPlayers([...players, { name: playerName.trim(), score: 0, eliminated: false }]);
-      setPlayerName('');
+      setPlayers([
+        ...players,
+        { name: playerName.trim(), score: 0, eliminated: false },
+      ]);
+      setPlayerName("");
     }
   };
 
@@ -78,7 +94,7 @@ export default function App() {
       setDeclaredBall(getLowestRemainingBall());
       setSetupPhase(false);
     } else {
-      setMessage('At least 2 players required.');
+      setMessage("At least 2 players required.");
     }
   };
 
@@ -92,51 +108,62 @@ export default function App() {
   };
 
   const handleMissedShot = () => {
-  const updatedPlayers = [...players];
-  const player = updatedPlayers[currentPlayer];
-  const missValue = getBallValue(declaredBall);
-  player.score -= missValue;
+    const declared = getLowestRemainingBall();
+    const fakeBallHit = 0;
 
-  const logMessage = `❌ Missed Shot! -${missValue} points`;
+    const updatedPlayers = [...players];
+    const player = updatedPlayers[currentPlayer];
+    const ballsCopy = [...balls];
 
-  setPlayers(updatedPlayers);
-  setMessage(logMessage);
-  setHistory((prev) => [
-    {
-      player: players[currentPlayer].name,
-      hit: null,
-      potted: [],
-      message: logMessage,
-      score: player.score,
-    },
-    ...prev,
-  ]);
+    const declaredValue = getBallValue(declared);
+    const penalty = declaredValue; // ✅ FIXED: No +1
 
-  checkElimination(updatedPlayers, balls);
-  checkWinner(balls);
-  nextTurn(balls);
-};
+    let msg = `❌ Missed Shot! -${penalty} points for failing to hit Ball ${declared}`;
+
+    player.score -= penalty;
+
+    if (player && player.name) {
+      setHistory((prev) => [
+        {
+          player: player.name,
+          hit: fakeBallHit,
+          potted: [],
+          message: msg,
+          score: player.score,
+        },
+        ...prev,
+      ]);
+    }
+
+    setPlayers(updatedPlayers);
+    setMessage(msg);
+    checkElimination(updatedPlayers, ballsCopy);
+    nextTurn();
+  };
+
 
 
   const handleConfirmTurn = () => {
     if (ballHit === null) {
-      setMessage('Select the ball that was hit first.');
+      setMessage("Select the ball that was hit first.");
       return;
     }
 
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayer];
     const ballsCopy = [...balls];
-    const declared = getLowestRemainingBall();
-    setDeclaredBall(declared);
+    const declared = ballHit;
+    setDeclaredBall(ballHit);
 
     const cueBallPotted = ballsPotted.includes(0);
     const declaredBallPotted = ballsPotted.includes(declared);
     const cueBallOnly = ballsPotted.length === 1 && cueBallPotted;
-    const declaredBallStillOnTable = balls.some(b => b.number === declared && !b.potted);
+    const declaredBallStillOnTable = balls.some(
+      (b) => b.number === declared && !b.potted
+    );
 
     let score = 0;
-    let msg = '';
+    let msg = "";
 
     for (let num of ballsPotted) {
       if (num !== 0 && num !== declared) {
@@ -148,21 +175,39 @@ export default function App() {
       if (!cueBallPotted && declaredBallPotted) {
         score += getBallValue(declared);
       }
-      if (ballsPotted.some(n => n !== 0)) {
+      if (ballsPotted.some((n) => n !== 0)) {
         setIsFirstBallYetPotted(true);
       }
     } else {
-      if (declaredBallPotted) {
-        score += getBallValue(declared);
-      }
+      const declaredValue = getBallValue(declared);
+
+      const scoringBalls = ballsPotted.filter(
+        (val) => val !== 0 && val !== declared
+      );
+
+      score = scoringBalls.reduce((sum, num) => sum + getBallValue(num), 0);
+
       if (cueBallOnly && declaredBallStillOnTable) {
-        score -= getBallValue(declared);
-        msg = `🚨 Foul! Only cue ball potted. -${getBallValue(declared)} points.`;
+        score -= declaredValue;
+        msg = `🚨 Foul! Only cue ball potted. -${declaredValue} points.`;
       } else if (cueBallPotted && declaredBallPotted) {
-        score -= getBallValue(declared);
-        msg = `⚠️ Cue ball and declared potted. Net -${getBallValue(declared)}.`;
+        // ✅ Legal pot AND foul → award all valid pots, subtract declared
+        score += declaredValue; // reward for potting declared
+        score -= declaredValue; // but foul cost cancels it out
+        msg = `⚠️ Cue and declared ball both potted. +${declaredValue} -${declaredValue} = 0. Total: ${
+          score > 0 ? "+" : ""
+        }${score}`;
+      } else if (cueBallPotted) {
+        score -= declaredValue;
+        msg = `⚠️ Cue ball potted. +${scoringBalls.reduce(
+          (sum, num) => sum + getBallValue(num),
+          0
+        )} -${declaredValue} = ${score > 0 ? "+" : ""}${score}`;
       } else {
-        msg = `✅ Turn processed. Score: ${score}`;
+        if (declaredBallPotted) {
+          score += declaredValue;
+        }
+        msg = `✅ Turn Complete. Score: ${score}`;
       }
     }
 
@@ -180,69 +225,80 @@ export default function App() {
     setBallHit(null);
     setBallsPotted([]);
 
-    setHistory((prev) => [
+    if (updatedPlayers[currentPlayer]) {
+      console.log("Logging turn for:", updatedPlayers[currentPlayer])
+      setHistory((prev) => [
       {
-        player: players[currentPlayer].name,
+        player: updatedPlayers[currentPlayer].name,
         hit: ballHit,
         potted: [...ballsPotted],
         message: msg,
-        score: players[currentPlayer].score,
+        score: updatedPlayers[currentPlayer].score,
       },
       ...prev,
     ]);
+    }
+    
+    //checkElimination(updatedPlayers, ballsCopy);
+    //checkWinner(ballsCopy);
+    //nextTurn(updatedPlayers);
+    const finalPlayers = checkElimination(updatedPlayers, ballsCopy);
+    nextTurn(finalPlayers);
 
-    checkElimination(updatedPlayers, ballsCopy);
-    checkWinner(ballsCopy);
-    nextTurn();
   };
 
   const checkElimination = (updatedPlayers, updatedBalls) => {
-  const remaining = updatedBalls.filter((b) => !b.potted);
-  const maxRemaining = remaining.reduce((sum, b) => sum + b.value, 0);
-  const maxScore = Math.max(...updatedPlayers.map((p) => p.score));
-
-  const reviewed = updatedPlayers.map((p) => {
-    const canCatch = p.score + maxRemaining >= maxScore;
-    return { ...p, eliminated: !canCatch };
-  });
-
-  setPlayers(reviewed);
-
-  // 🏆 Immediate win check
-  const alive = reviewed.filter((p) => !p.eliminated);
-  if (alive.length === 1) {
-    const winner = alive[0];
-    setMessage(`🏆 Game Over! Winner: ${winner.name} (${winner.score} pts)`);
-  }
-};
-
-
-  const checkWinner = (updatedBalls, updatedPlayers = players) => {
     const remaining = updatedBalls.filter((b) => !b.potted);
-    const alive = updatedPlayers.filter((p) => !p.eliminated);
+    const maxRemaining = remaining.reduce((sum, b) => sum + b.value, 0);
+    const maxScore = Math.max(...updatedPlayers.map((p) => p.score));
 
-    if (remaining.length === 0 || alive.length === 1) {
-      const winner = alive.sort((a, b) => b.score - a.score)[0];
+    const reviewed = updatedPlayers.map((p) => {
+      const canCatch = p.score + maxRemaining >= maxScore;
+      return { ...p, eliminated: !canCatch };
+    });
+
+    setPlayers(reviewed);
+
+    // 🏆 Immediate win check
+    const alive = reviewed.filter((p) => !p.eliminated);
+    if (alive.length === 1) {
+      const winner = alive[0];
       setMessage(`🏆 Game Over! Winner: ${winner.name} (${winner.score} pts)`);
       setGameOver(true);
     }
+
+    return reviewed; // ✅ <-- return the up-to-date player list
   };
 
-  const nextTurn = () => {
-    if (gameOver) return; // 🛑 Prevent further turns
+  //const checkWinner = (updatedBalls, updatedPlayers = players) => {
+  //  const remaining = updatedBalls.filter((b) => !b.potted);
+  //  const alive = updatedPlayers.filter((p) => !p.eliminated);
 
-    const total = players.length;
-    let next = (currentPlayer + 1) % total;
-    let loops = 0;
+  //  if (remaining.length === 0 || alive.length === 1) {
+  //    const winner = alive.sort((a, b) => b.score - a.score)[0];
+  //    setMessage(`🏆 Game Over! Winner: ${winner.name} (${winner.score} pts)`);
+  //    setGameOver(true);
+  //  }
+  //};
 
-    while (players[next].eliminated && loops < total) {
-      next = (next + 1) % total;
-      loops++;
+  const nextTurn = (playerList = players) => {
+    let nextIndex = currentPlayer;
+
+    for (let i = 0; i < players.length; i++) {
+      nextIndex = (nextIndex + 1) % playerList.length;
+      if (!playerList[nextIndex].eliminated) {
+        setCurrentPlayer(nextIndex);
+        return;
+      }
     }
-
-    setCurrentPlayer(next);
-    setDeclaredBall(getLowestRemainingBall());
+    // All eliminated
+    setCurrentPlayer(null);
+    // If we looped through all and found no eligible players
+    setMessage("🎉 Game Over!");
   };
+
+
+
 
   if (setupPhase) {
     return (
@@ -272,9 +328,11 @@ export default function App() {
     <div className="app-container">
       <h2>🎱 Dashboard</h2>
       {gameOver ? (
-        <h2 className='now-playing'>🏁 Game Over</h2>
+        <h2 className="now-playing">🏁 Game Over</h2>
       ) : (
-        <h2 className="now-playing">Now Playing: {players[currentPlayer].name}</h2>
+        <h2 className="now-playing">
+          Now Playing: {players[currentPlayer].name}
+        </h2>
       )}
 
       <p className="message-log">{message}</p>
@@ -284,7 +342,7 @@ export default function App() {
           {balls.map((ball) => (
             <button
               key={ball.number}
-              className={`ball ${ballHit === ball.number ? 'selected' : ''}`}
+              className={`ball ${ballHit === ball.number ? "selected" : ""}`}
               onClick={() => setBallHit(ball.number)}
               disabled={ball.potted}
               data-number={ball.number}
@@ -304,7 +362,9 @@ export default function App() {
           {balls.map((ball) => (
             <button
               key={ball.number}
-              className={`potted-ball ${ballsPotted.includes(ball.number) ? 'selected' : ''} ${ball.potted ? 'inactive' : ''}`}
+              className={`potted-ball ${
+                ballsPotted.includes(ball.number) ? "selected" : ""
+              } ${ball.potted ? "inactive" : ""}`}
               data-number={ball.number}
               onClick={() => toggleBallPotted(ball.number)}
               disabled={ball.potted}
@@ -316,7 +376,7 @@ export default function App() {
 
         <div className="cue-button-wrapper">
           <button
-            className={`cue-ball ${ballsPotted.includes(0) ? 'selected' : ''}`}
+            className={`cue-ball ${ballsPotted.includes(0) ? "selected" : ""}`}
             onClick={() => toggleBallPotted(0)}
           >
             ⚪
@@ -331,8 +391,8 @@ export default function App() {
       <h3>📊 Scoreboard</h3>
       <ul className="scoreboard">
         {players.map((p, i) => (
-          <li key={i} className={p.eliminated ? 'eliminated' : ''}>
-            {p.name}: {p.score} {p.eliminated && '❌ Eliminated'}
+          <li key={i} className={p.eliminated ? "eliminated" : ""}>
+            {p.name}: {p.score} {p.eliminated && "❌ Eliminated"}
           </li>
         ))}
       </ul>
@@ -342,18 +402,17 @@ export default function App() {
         {history.map((log, index) => (
           <li key={index}>
             <strong>{log.player}</strong> hit <strong>{log.hit}</strong>,
-            potted: [{log.potted.join(', ') || 'none'}] →
-            <em>{log.message}</em> (Score: {log.score})
+            potted: [{log.potted.join(", ") || "none"}] →<em>{log.message}</em>{" "}
+            (Score: {log.score})
           </li>
         ))}
       </ul>
-       {gameOver && (
+      {gameOver && (
         <div className="ball-actions stacked">
-          <button onClick={handleResetGame}>🔁 Restart Game</button>
           <button onClick={handleDownloadLog}>📥 Download Game Log</button>
+          <button onClick={handleResetGame}>🔁 Restart Game</button>
         </div>
-        )}
+      )}
     </div>
-
   );
 }
