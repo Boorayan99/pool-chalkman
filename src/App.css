@@ -1,4 +1,4 @@
-/* App.css */
+/* App.css — Refined for Clean UI and Accurate Pool Colors */
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -239,7 +239,6 @@ ul {
     flex: 1;
   }
 }
-
 
 .ball-actions.stacked {
   flex-direction: column;
