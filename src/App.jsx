@@ -53,7 +53,7 @@ export default function App() {
 
   const handleMissedShot = () => {
     const declared = getLowestRemainingBall();
-    const penalty = getBallValue(declared);
+    const penalty = getBallValue(ballHit);
 
     const updated = [...players];
     updated[currentPlayer].score -= penalty;
@@ -62,7 +62,7 @@ export default function App() {
       player: updated[currentPlayer].name,
       hit: 0,
       potted: [],
-      message: `❌ Missed Shot! -${penalty} points for failing to hit Ball ${declared}`,
+      message: `❌ Blunder! -${penalty} points for failing to hit Ball ${declared}`,
       score: updated[currentPlayer].score,
     };
 
@@ -116,9 +116,9 @@ export default function App() {
       potted: [...ballsPotted],
       message: cueBallPotted
         ? declaredBallPotted
-          ? `⚠️ Cue and declared ball potted. +${declaredValue} -${declaredValue} = 0. Total: ${score}`
-          : `⚠️ Cue ball potted. -${declaredValue}. Total: ${score}`
-        : `✅ Turn Complete. Score: ${score}`,
+          ? `⚠️ Cue + Correct Ball Potted. +${declaredValue} -${declaredValue} = 0. Total: ${score}`
+          : `⚠️ Cue Ball Potted. -${declaredValue}. Total: ${score}`
+          : `✅ Turn Complete. Score: ${score}` ,
       score: player.score,
     };
 
@@ -197,7 +197,7 @@ export default function App() {
   if (setupPhase) {
     return (
       <div className="app-container">
-        <h2>🎱 Chalkboard</h2>
+        <h2></h2>
         <input
           type="text"
           placeholder="Add Players"
@@ -216,7 +216,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <h2>🎱 Dashboard</h2>
       <h2 className="now-playing">
         {gameOver || currentPlayer === null
           ? "🏁 Game Over"
@@ -226,7 +225,7 @@ export default function App() {
       <p className="message-log">{message}</p>
 
       <div className="ball-section">
-        <h3>👊 Ball Hit</h3>
+        <h3>👊 Ball Played</h3>
         <div className="ball-grid">
           {balls.map((ball) => (
             <button
@@ -241,7 +240,7 @@ export default function App() {
           ))}
         </div>
         <div className="ball-actions stacked">
-          <button onClick={handleMissedShot}>❌ Missed Shot</button>
+          <button onClick={handleMissedShot}>❌ Minus </button>
         </div>
       </div>
 
@@ -286,7 +285,7 @@ export default function App() {
       <ul className="history-log">
         {history.map((log, i) => (
           <li key={i}>
-            <strong>{log.player}</strong> hit <strong>{log.hit}</strong>,
+            <strong>{log.player}</strong> played <strong>{log.hit}</strong>,
             potted: [{log.potted.join(", ") || "none"}] → <em>{log.message}</em> (Score: {log.score})
           </li>
         ))}
@@ -295,9 +294,22 @@ export default function App() {
       {gameOver && (
         <div className="ball-actions stacked">
           <button onClick={handleDownloadLog}>📥 Download Game Log</button>
-          <button onClick={handleResetGame}>🔁 Restart Game</button>
+          <button onClick={handleResetGame}>🔁 New Game</button>
         </div>
       )}
+
+      <footer className="py-4">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-12">
+              <p className="text-center mb-0 text-white">
+                &copy; {new Date().getFullYear()} : Powered by Boorayan Automation Inc.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+
     </div>
   );
 }
